@@ -6,6 +6,7 @@ export const JWT_SECRET = "jhfdjfdaj";
 import { auth } from "./auth.js";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt"
+import {z} from "zod";
 
 const app = express();
 
@@ -15,6 +16,33 @@ mongoose.connect("mongodb+srv://Edith786:786Patil@cluster0.niapsjh.mongodb.net/B
 
 //user Registration
 app.post("/signUp", async (req, res) => {
+
+    //input validation
+    const requiredBody = z.object({
+        email : z.string().min(3).max(20).email(),
+        name : z.string().min(3).max(20),
+        password : z.string().min(3).max(30)
+    })
+
+    const parseDataSuccess = requiredBody.safeParse(req.body);
+
+    /*
+        {
+            success : true || false,
+            data: {},
+            error : []
+        }
+    */
+
+    if(!parseDataSuccess.success){
+        res.json({
+            message: "Invalid formate.",
+            error : parseDataSuccess.error
+        })
+        return
+    }
+
+
     const name = req.body.name
     const email = req.body.email
     const password = req.body.password;
